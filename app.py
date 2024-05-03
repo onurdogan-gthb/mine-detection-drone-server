@@ -1,3 +1,7 @@
+#   M I N E   D E T E C T I O N   D R O N E   S E R V E R
+
+
+
 # IMPORTS
 import random
 import requests
@@ -23,7 +27,10 @@ def favicon():
 
 
 
-last_coordinates = {} # global variable to store the last sent coordinates
+# GLOBAL VARIABLES
+start = True
+last_coordinates = {}
+scan = True
 
 
 
@@ -33,7 +40,7 @@ def send_start():
     url = 'http://127.0.0.1:5000/send-start'
     headers = {'Content-Type': 'application/json'}
 
-    start = True
+    global start
 
     time.sleep(15) # wait for 15 seconds initially
 
@@ -76,7 +83,7 @@ def send_scan():
     url = 'http://127.0.0.1:5000/send-scan'
     headers = {'Content-Type': 'application/json'}
 
-    scan = True
+    global scan
 
     while True:
         try:
@@ -102,6 +109,9 @@ class Hello(Resource):
         return jsonify({'message': 'Server is running...'})
 # Start
 class Start(Resource):
+    def get(self):
+        global start
+        return jsonify({'message': 'GET request received', 'start': start})
     def post(self):
         data = request.json
         start = data.get('start')
@@ -120,6 +130,9 @@ class Coordinates(Resource):
         return jsonify({'coordinates': {'latitude': latitude, 'longitude': longitude}})
 # Scan
 class Scan(Resource):
+    def get(self):
+        global scan
+        return jsonify({'message': 'GET request received', 'scan': scan})
     def post(self):
         data = request.json
         scan = data.get('scan')
@@ -128,9 +141,9 @@ class Scan(Resource):
 
 # adding the resources
 api.add_resource(Hello, '/', methods=['GET'])
-api.add_resource(Start, '/send-start', methods=['POST'])
+api.add_resource(Start, '/send-start', methods=['GET', 'POST'])
 api.add_resource(Coordinates, '/send-coordinates', methods=['GET', 'POST'])
-api.add_resource(Scan, '/send-scan', methods=['POST'])
+api.add_resource(Scan, '/send-scan', methods=['GET', 'POST'])
 
 
 
@@ -148,5 +161,9 @@ if __name__ == '__main__':
 
     # main thread
     app.run(debug=True)
+
+
+
+# END
 
 
