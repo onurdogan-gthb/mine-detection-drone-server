@@ -73,7 +73,7 @@ def send_coordinates():
         time.sleep(1) # send coordinates every 1 second
 # Scan
 def send_scan():
-    url = 'http://127.0.0.1:5000/send-boolean'
+    url = 'http://127.0.0.1:5000/send-scan'
     headers = {'Content-Type': 'application/json'}
 
     scan = True
