@@ -1,3 +1,4 @@
+# IMPORTS
 import random
 import requests
 import threading
@@ -8,6 +9,7 @@ from flask_cors import CORS
 
 
 
+# defining the server
 app = Flask(__name__)
 api = Api(app)
 CORS(app, origins=['http://localhost:3000']) # URL of the UI
@@ -25,10 +27,29 @@ last_coordinates = {} # global variable to store the last sent coordinates
 
 
 
-# random coordinate generator
+# FUNCTIONS
+# Start
+def send_start():
+    url = 'http://127.0.0.1:5000/send-start'
+    headers = {'Content-Type': 'application/json'}
+
+    start = True
+
+    time.sleep(15) # wait for 15 seconds initially
+
+    try:
+        response = requests.post(url, json={'start': start}, headers=headers)
+
+        if response.status_code == 200:
+            print('Start sent successfully: ', start)
+        else:
+            print('Failed to send start. Status code: ', response.status_code)
+    except Exception as e:
+        print('Error sending start: ', e)
+# Coordinates
 def send_coordinates():
     global last_coordinates
-    url = 'http://127.0.0.1:5000/send-coordinates' # URL of the coordinates to be sent
+    url = 'http://127.0.0.1:5000/send-coordinates'
     while True:
         try:
             # generate random coordinates
@@ -50,18 +71,42 @@ def send_coordinates():
             print('Error sending coordinates: ', e)
 
         time.sleep(1) # send coordinates every 1 second
+# Scan
+def send_scan():
+    url = 'http://127.0.0.1:5000/send-boolean'
+    headers = {'Content-Type': 'application/json'}
+
+    scan = True
+
+    while True:
+        try:
+            response = requests.post(url, json={'scan': scan}, headers=headers)
+
+            if response.status_code == 200:
+                print('Scan sent successfully: ', scan)
+            else:
+                print('Failed to send scan. Status code: ', response.status_code)
+        except Exception as e:
+            print('Error sending scan: ', e)
+
+        scan = not scan # flip the boolean
+
+        time.sleep(3) # send scan every 3 seconds
 
 
 
+# RESOURCES
 # Hello
 class Hello(Resource):
     def get(self):
-        return jsonify({'message': 'Hello World!'})
-# Hello 2
-class Hello_2(Resource):
-    def get(self):
-        return jsonify({'message': 'Hello again, World!'})
-
+        return jsonify({'message': 'Server is running...'})
+# Start
+class Start(Resource):
+    def post(self):
+        data = request.json
+        start = data.get('start')
+        print('The drone is started: {}'.format(start))
+        return jsonify({'start': start})
 # Coordinates
 class Coordinates(Resource):
     def get(self):
@@ -73,20 +118,33 @@ class Coordinates(Resource):
         longitude = data.get('longitude')
         print('Received coordinates: Latitude: {}, Longitude: {}'.format(latitude, longitude))
         return jsonify({'coordinates': {'latitude': latitude, 'longitude': longitude}})
+# Scan
+class Scan(Resource):
+    def post(self):
+        data = request.json
+        scan = data.get('scan')
+        print('Received scan: {}'.format(scan))
+        return jsonify({'scan': scan})
 
-
-
+# adding the resources
 api.add_resource(Hello, '/', methods=['GET'])
-api.add_resource(Hello_2, '/hello-2', methods=['GET'])
+api.add_resource(Start, '/send-start', methods=['POST'])
 api.add_resource(Coordinates, '/send-coordinates', methods=['GET', 'POST'])
+api.add_resource(Scan, '/send-scan', methods=['POST'])
 
 
 
+# MAIN
 if __name__ == '__main__':
+    # thread for sending start
+    t1 = threading.Thread(target=send_start)
+    t1.start()
     # thread for sending coordinates
-    t = threading.Thread(target=send_coordinates)
-    print('Sending coordinates...')
-    t.start()
+    t2 = threading.Thread(target=send_coordinates)
+    t2.start()
+    # thread for sending scan
+    t3 = threading.Thread(target=send_scan)
+    t3.start()
 
     # main thread
     app.run(debug=True)
