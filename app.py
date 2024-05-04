@@ -61,14 +61,14 @@ def send_flight_time():
             with print_lock:
                 if response.status_code == 200:
                     print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + 'Flight Time' + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + 'Value = ' + '\033[0m' + str(flight_time))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Value = ' + '\033[0m' + str(flight_time))
                 else:
                     print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + 'Flight Time' + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + 'Status Code = ' + '\033[0m' + str(response.status_code))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
         except Exception as e:
             with print_lock:
                 print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=0) + 'ERROR = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=128) + 'Flight Time' + '\033[0m')
-                print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + 'Exception = ' + '\033[0m' + str(e))
+                print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + ' Exception = ' + '\033[0m' + str(e))
         
         time.sleep(interval)
 # Rotors' States
@@ -107,25 +107,25 @@ def send_rotors_states():
             with print_lock:
                 if response.status_code == 200:
                     print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + "Rotors' States" + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + 'Rotor NW')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + 'RPM = ' + '\033[0m' + str(rotor_nw_rpm))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + 'RPM = ' + '\033[0m' + str(rotor_nw_angle))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + 'Rotor NE')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + 'RPM = ' + '\033[0m' + str(rotor_ne_rpm))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + 'RPM = ' + '\033[0m' + str(rotor_ne_angle))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + 'Rotor SW')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + 'RPM = ' + '\033[0m' + str(rotor_sw_rpm))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + 'RPM = ' + '\033[0m' + str(rotor_sw_angle))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + 'Rotor SE')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + 'RPM = ' + '\033[0m' + str(rotor_se_rpm))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + 'RPM = ' + '\033[0m' + str(rotor_se_angle))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Rotor NW')
+                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  RPM = ' + '\033[0m' + str(rotor_nw_rpm))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  Angle = ' + '\033[0m' + str(rotor_nw_angle))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Rotor NE')
+                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  RPM = ' + '\033[0m' + str(rotor_ne_rpm))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  Angle = ' + '\033[0m' + str(rotor_ne_angle))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Rotor SW')
+                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  RPM = ' + '\033[0m' + str(rotor_sw_rpm))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  Angle = ' + '\033[0m' + str(rotor_sw_angle))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Rotor SE')
+                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  RPM = ' + '\033[0m' + str(rotor_se_rpm))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  Angle = ' + '\033[0m' + str(rotor_se_angle))
                 else:
                     print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + "Rotors' States" + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + 'Status Code = ' + '\033[0m' + str(response.status_code))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
         except Exception as e:
             with print_lock:
                 print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=0) + 'ERROR = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=128) + "Rotors' States" + '\033[0m')
-                print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + 'Exception = ' + '\033[0m' + str(e))
+                print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + ' Exception = ' + '\033[0m' + str(e))
 
         time.sleep(interval)
 # Coordinates
@@ -149,15 +149,15 @@ def send_coordinates():
             with print_lock:
                 if response.status_code == 200:
                     print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + 'Coordinates' + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + 'Latitude = ' + '\033[0m' + str(latitude))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + 'Longitude = ' + '\033[0m' + str(longitude))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Latitude = ' + '\033[0m' + str(latitude))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Longitude = ' + '\033[0m' + str(longitude))
                 else:
                     print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + 'Coordinates' + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + 'Status Code = ' + '\033[0m' + str(response.status_code))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
         except Exception as e:
             with print_lock:
                 print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=0) + 'ERROR = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=128) + 'Coordinates' + '\033[0m')
-                print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + 'Exception = ' + '\033[0m' + str(e))
+                print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + ' Exception = ' + '\033[0m' + str(e))
 
         time.sleep(interval)
 # Mine Detection
@@ -175,14 +175,14 @@ def send_mine_detection():
             with print_lock:
                 if response.status_code == 200:
                     print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + 'Mine Detection' + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + 'Value = ' + '\033[0m' + str(mine_detected))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Value = ' + '\033[0m' + str(mine_detected))
                 else:
                     print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + 'Mine Detection' + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + 'Status Code = ' + '\033[0m' + str(response.status_code))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
         except Exception as e:
             with print_lock:
                 print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=0) + 'ERROR = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=128) + 'Mine Detection' + '\033[0m')
-                print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + 'Exception = ' + '\033[0m' + str(e))
+                print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + ' Exception = ' + '\033[0m' + str(e))
 
         mine_detected = not mine_detected
 
@@ -202,14 +202,14 @@ def send_battery_level():
             with print_lock:
                 if response.status_code == 200:
                     print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + 'Battery Level' + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + 'Value = ' + '\033[0m' + str(battery_level))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Value = ' + '\033[0m' + str(battery_level))
                 else:
                     print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + 'Battery Level' + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + 'Status Code = ' + '\033[0m' + str(response.status_code))
+                    print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
         except Exception as e:
             with print_lock:
                 print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=0) + 'ERROR = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=128) + 'Battery Level' + '\033[0m')
-                print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + 'Exception = ' + '\033[0m' + str(e))
+                print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + ' Exception = ' + '\033[0m' + str(e))
 
         time.sleep(interval)
 
