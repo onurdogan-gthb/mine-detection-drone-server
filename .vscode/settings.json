@@ -1,3 +1,6 @@
 {
-  "cSpell.words": ["jsonify"]
+  "cSpell.words": [
+    "jsonify",
+    "werkzeug"
+  ]
 }
