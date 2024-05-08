@@ -4,7 +4,6 @@
 
 # IMPORTS
 import logging
-import random
 import requests
 import threading
 import time
@@ -17,7 +16,9 @@ from flask_cors import CORS
 # defining the server
 app = Flask(__name__)
 api = Api(app)
-CORS(app, origins=['http://localhost:3000']) # URL of the UI
+CORS(app, origins=['http://localhost:3000', 'http://172.20.10.7:3000']) # allowed URLs
+# server address
+# http://172.20.10.6:5000
 
 
 
@@ -37,6 +38,7 @@ print_lock = threading.Lock()
 flight_time = 0
 drone_started = False
 rotors_states = {}
+drone_height = 0
 mine_detected = False
 last_coordinates = {}
 battery_level = 100
@@ -53,10 +55,19 @@ def send_flight_time():
     
     while True:
         try:
-            flight_time += interval
-
             headers = {'Content-Type': 'application/json'}
-            response = requests.post(url, json={'flight_time': flight_time}, headers=headers)
+            response = requests.get(url)
+
+            if response.status_code == 200:
+                data = response.json()
+                isRunning = data.get('isRunning', False)
+            else:
+                isRunning = False
+
+            if isRunning:
+                flight_time += 1
+
+            response = requests.post(url, json={'isRunning': isRunning, 'flight_time': flight_time}, headers=headers)
 
             with print_lock:
                 if response.status_code == 200:
@@ -80,52 +91,54 @@ def send_rotors_states():
 
     while True:
         try:
-            rotor_nw_rpm = 1000
-            rotor_nw_angle = 0
-            rotor_ne_rpm = 1000
-            rotor_ne_angle = 0
-            rotor_sw_rpm = 1000
-            rotor_sw_angle = 0
-            rotor_se_rpm = 1000
-            rotor_se_angle = 0
+            response = requests.get(url)
+            if response.status_code == 200:
+                rotors_states = response.json().get('rotors_states', {})
 
-            rotor_nw = {'rotor_nw_rpm': rotor_nw_rpm, 'rotor_nw_angle': rotor_nw_angle}
-            rotor_ne = {'rotor_ne_rpm': rotor_ne_rpm, 'rotor_ne_angle': rotor_ne_angle}
-            rotor_sw = {'rotor_sw_rpm': rotor_sw_rpm, 'rotor_sw_angle': rotor_sw_angle}
-            rotor_se = {'rotor_se_rpm': rotor_se_rpm, 'rotor_se_angle': rotor_se_angle}
+                headers = {'Content-Type': 'application/json'}
+                response = requests.post(url, json=rotors_states, headers=headers)
 
-            rotors_states = {
-            'rotor_nw': rotor_nw,
-            'rotor_ne': rotor_ne,
-            'rotor_sw': rotor_sw,
-            'rotor_se': rotor_se
-            }
-
-            headers = {'Content-Type': 'application/json'}
-            response = requests.post(url, json=rotors_states, headers=headers)
-
-            with print_lock:
-                if response.status_code == 200:
-                    print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + "Rotors' States" + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Rotor NW')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  RPM = ' + '\033[0m' + str(rotor_nw_rpm))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  Angle = ' + '\033[0m' + str(rotor_nw_angle))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Rotor NE')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  RPM = ' + '\033[0m' + str(rotor_ne_rpm))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  Angle = ' + '\033[0m' + str(rotor_ne_angle))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Rotor SW')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  RPM = ' + '\033[0m' + str(rotor_sw_rpm))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  Angle = ' + '\033[0m' + str(rotor_sw_angle))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Rotor SE')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  RPM = ' + '\033[0m' + str(rotor_se_rpm))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=224, g=255, b=224) + '  Angle = ' + '\033[0m' + str(rotor_se_angle))
-                else:
+                with print_lock:
+                    if response.status_code == 200:
+                        print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + "Rotors' States" + '\033[0m')
+                    else:
+                        print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + "Rotors' States" + '\033[0m')
+                        print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
+            else:
+                with print_lock:
                     print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + "Rotors' States" + '\033[0m')
                     print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
         except Exception as e:
             with print_lock:
                 print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=0) + 'ERROR = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=128) + "Rotors' States" + '\033[0m')
                 print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + ' Exception = ' + '\033[0m' + str(e))
+
+        time.sleep(interval)
+# Drone Height
+def send_drone_height():
+    global drone_height
+    interval = 1
+
+    url = 'http://127.0.0.1:5000/send-drone-height'
+
+    while True:
+        try:
+            response = requests.get(url)
+
+            if response.status_code == 200:
+                drone_height = response.get('drone_height', 0)
+
+                headers = {'Content-Type': 'application/json'}
+                response = requests.post(url, json={'drone_height': drone_height}, headers=headers)
+
+                print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + 'Drone Height' + '\033[0m')
+                print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Value = ' + '\033[0m' + str(drone_height))
+            else:
+                print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + 'Drone Height' + '\033[0m')
+                print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
+        except Exception as e:
+            print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=0) + 'ERROR = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=128) + 'Drone Height' + '\033[0m')
+            print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + ' Exception = ' + '\033[0m' + str(e))
 
         time.sleep(interval)
 # Coordinates
@@ -137,21 +150,21 @@ def send_coordinates():
 
     while True:
         try:
-            latitude = round(random.uniform(-90, 90), 6)
-            longitude = round(random.uniform(-180, 180), 6)
+            response = requests.get(url)
+            if response.status_code == 200:
+                last_coordinates = response.json().get('coordinates', {}) 
 
-            coordinates = {'latitude': latitude, 'longitude': longitude}
-            last_coordinates = coordinates
+                headers = {'Content-Type': 'application/json'}
+                response = requests.post(url, json=last_coordinates, headers=headers)
 
-            headers = {'Content-Type': 'application/json'}
-            response = requests.post(url, json=coordinates, headers=headers)
-
-            with print_lock:
-                if response.status_code == 200:
-                    print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + 'Coordinates' + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Latitude = ' + '\033[0m' + str(latitude))
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Longitude = ' + '\033[0m' + str(longitude))
-                else:
+                with print_lock:
+                    if response.status_code == 200:
+                        print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + 'Coordinates' + '\033[0m')
+                    else:
+                        print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + 'Coordinates' + '\033[0m')
+                        print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
+            else:
+                with print_lock:
                     print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + 'Coordinates' + '\033[0m')
                     print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
         except Exception as e:
@@ -169,14 +182,22 @@ def send_mine_detection():
 
     while True:
         try:
-            headers = {'Content-Type': 'application/json'}
-            response = requests.post(url, json={'mine_detected': mine_detected}, headers=headers)
+            response = requests.get(url)
+            if response.status_code == 200:
+                mine_detected = response.json().get('mine_detected', False)
 
-            with print_lock:
-                if response.status_code == 200:
-                    print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + 'Mine Detection' + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Value = ' + '\033[0m' + str(mine_detected))
-                else:
+                headers = {'Content-Type': 'application/json'}
+                response = requests.post(url, json={'mine_detected': mine_detected}, headers=headers)
+
+                with print_lock:
+                    if response.status_code == 200:
+                        print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + 'Mine Detection' + '\033[0m')
+                        print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Value = ' + '\033[0m' + str(mine_detected))
+                    else:
+                        print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + 'Mine Detection' + '\033[0m')
+                        print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
+            else:
+                with print_lock:
                     print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + 'Mine Detection' + '\033[0m')
                     print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
         except Exception as e:
@@ -196,20 +217,22 @@ def send_battery_level():
 
     while True:
         try:
-            headers = {'Content-Type': 'application/json'}
-            response = requests.post(url, json={'battery_level': battery_level}, headers=headers)
+            response = requests.get(url)
 
-            with print_lock:
-                if response.status_code == 200:
-                    print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + 'Battery Level' + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Value = ' + '\033[0m' + str(battery_level))
-                else:
-                    print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + 'Battery Level' + '\033[0m')
-                    print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
+            if response.status_code == 200:
+                battery_level = response.get('battery_level', 100)
+
+                headers = {'Content-Type': 'application/json'}
+                response = requests.post(url, json={'battery_level': battery_level}, headers=headers)
+
+                print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=0, g=255, b=0) + 'SUCCESS = ' + '\033[38;2;{r};{g};{b}m'.format(r=128, g=255, b=128) + 'Battery Level' + '\033[0m')
+                print('\033[38;2;{r};{g};{b}m'.format(r=192, g=255, b=192) + ' Value = ' + '\033[0m' + str(battery_level))
+            else:
+                print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=0, b=0) + 'FAILURE = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=128, b=128) + 'Battery Level' + '\033[0m')
+                print('\033[38;2;{r};{g};{b}m'.format(r=255, g=192, b=192) + ' Status Code = ' + '\033[0m' + str(response.status_code))
         except Exception as e:
-            with print_lock:
-                print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=0) + 'ERROR = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=128) + 'Battery Level' + '\033[0m')
-                print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + ' Exception = ' + '\033[0m' + str(e))
+            print('\n' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=0) + 'ERROR = ' + '\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=128) + 'Battery Level' + '\033[0m')
+            print('\033[38;2;{r};{g};{b}m'.format(r=255, g=255, b=192) + ' Exception = ' + '\033[0m' + str(e))
 
         time.sleep(interval)
 
@@ -268,6 +291,17 @@ class RotorsStates(Resource):
                 }
             }
         })
+# Drone Height
+class DroneHeight(Resource):
+    def get(self):
+        global drone_height
+
+        return jsonify({'drone_height': drone_height})
+    def post(self):
+        data = request.json
+        drone_height = data.get('drone_height')
+
+        return jsonify({'drone_height': drone_height})
 # Coordinates
 class Coordinates(Resource):
     def get(self):
@@ -312,6 +346,7 @@ class BatteryLevel(Resource):
 api.add_resource(Hello, '/', methods=['GET'])
 api.add_resource(FlightTime, '/send-flight-time', methods=['GET', 'POST'])
 api.add_resource(RotorsStates, '/send-rotors-states', methods=['GET', 'POST'])
+api.add_resource(DroneHeight, '/send-drone-height', methods=['GET', 'POST'])
 api.add_resource(Coordinates, '/send-coordinates', methods=['GET', 'POST'])
 api.add_resource(MineDetection, '/send-mine-detection', methods=['GET', 'POST'])
 api.add_resource(BatteryLevel, '/send-battery-level', methods=['GET', 'POST'])
@@ -330,12 +365,14 @@ if __name__ == '__main__':
     t1.start()
     t2 = threading.Thread(target=send_rotors_states)
     t2.start()
-    t3 = threading.Thread(target=send_coordinates)
+    t3 = threading.Thread(target=send_drone_height)
     t3.start()
-    t4 = threading.Thread(target=send_mine_detection)
+    t4 = threading.Thread(target=send_coordinates)
     t4.start()
-    t5 = threading.Thread(target=send_battery_level)
+    t5 = threading.Thread(target=send_mine_detection)
     t5.start()
+    t6 = threading.Thread(target=send_battery_level)
+    t6.start()
 
     app.run(debug=False)
 
